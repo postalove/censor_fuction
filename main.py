@@ -19,39 +19,47 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 '''
 import interactions
 # Use the following method to import the internal module in the current same directory
-from . import internal_t
+from . import load_info
 
 '''
 Replace the ModuleName with any name you'd like
 '''
-class ModuleName(interactions.Extension):
+class RoleManager(interactions.Extension):
     module_base: interactions.SlashCommand = interactions.SlashCommand(
-        name="replace_your_command_base_here",
+        name="censor_role",
         description="Replace here for the base command descriptions"
     )
     module_group: interactions.SlashCommand = module_base.group(
-        name="replace_your_command_group_here",
+        name="can",
         description="Replace here for the group command descriptions"
     )
 
-    @module_group.subcommand("ping", sub_cmd_description="Replace the description of this command")
+    
+    
+    @module_group.subcommand("promote", sub_cmd_description="通过审核")
     @interactions.slash_option(
-        name = "option_name",
-        description = "Option description",
+        name = "member",
+        description='member you want to promote',
         required = True,
-        opt_type = interactions.OptionType.STRING
+        opt_type = interactions.OptionType.USER
     )
-    async def module_group_ping(self, ctx: interactions.SlashContext, option_name: str):
-        await ctx.send(f"Pong {option_name}!")
-        internal_t.internal_t_testfunc()
+    async def promote(self,ctx:interactions.SlashContext,member:interactions.Member):
+        censor, allowed_roles, log_channel_id,guild_id = load_info.extract_bot_setup("bot_setup.json")
+        if any(role.name in censor for role in ctx.author.roles):
+            official_member_role = interactions.utils.get(ctx.guild.roles, name='正式成员')
 
-    @module_base.subcommand("pong", sub_cmd_description="Replace the description of this command")
-    @interactions.slash_option(
-        name = "option_name",
-        description = "Option description",
-        required = True,
-        opt_type = interactions.OptionType.STRING
-    )
-    async def module_group_pong(self, ctx: interactions.SlashContext, option_name: str):
-        await ctx.send(f"Pong {option_name}!")
-        internal_t.internal_t_testfunc()
+        # Get the '临时成员' role
+            temporary_member_role = interactions.utils.get(ctx.guild.roles, name='临时成员')
+            prisoner_role = interactions.utils.get(ctx.guild.roles, name='囚犯')
+            if prisoner_role in member.roles:
+                await ctx.response.send(f'{member.mention} is a prisoner!')
+                return
+        # Check if the roles exist
+            if official_member_role is None or temporary_member_role is None:
+                await ctx.send("Roles not found. Please make sure '正式成员' and '临时成员' roles exist.")
+                return
+            await member.add_role(official_member_role)
+            await member.remove_role(temporary_member_role)
+            await ctx.send(f'{member.mention} has been promoted.')
+        else:
+            await ctx.send(f'你无权这么做')
