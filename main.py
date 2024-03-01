@@ -87,6 +87,6 @@ class RoleManager(interactions.Extension):
                 return
             await member.remove_role(official_member_role)
             await member.add_role(temporary_member_role)
-            await ctx.send(f'{member.mention} has been promoted.')
+            await ctx.send(f'{member.mention} has been demoted.')
         else:
             await ctx.send(f'你无权这么做')
