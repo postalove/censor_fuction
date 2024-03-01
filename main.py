@@ -63,3 +63,30 @@ class RoleManager(interactions.Extension):
             await ctx.send(f'{member.mention} has been promoted.')
         else:
             await ctx.send(f'你无权这么做')
+    @module_group.subcommand("demote", sub_cmd_description="撤销通过审核")
+    @interactions.slash_option(
+        name = "member",
+        description='member you want to demote',
+        required = True,
+        opt_type = interactions.OptionType.USER
+    )
+    async def demote(self,ctx:interactions.SlashContext,member:interactions.Member):
+        censor, allowed_roles, log_channel_id,guild_id = load_info.extract_bot_setup("bot_setup.json")
+        if any(role.name in censor for role in ctx.author.roles):
+            official_member_role = interactions.utils.get(ctx.guild.roles, name='正式成员')
+
+        # Get the '临时成员' role
+            temporary_member_role = interactions.utils.get(ctx.guild.roles, name='临时成员')
+            prisoner_role = interactions.utils.get(ctx.guild.roles, name='囚犯')
+            if prisoner_role in member.roles:
+                await ctx.response.send(f'{member.mention} is a prisoner!')
+                return
+        # Check if the roles exist
+            if official_member_role is None or temporary_member_role is None:
+                await ctx.send("Roles not found. Please make sure '正式成员' and '临时成员' roles exist.")
+                return
+            await member.remove_role(official_member_role)
+            await member.add_role(temporary_member_role)
+            await ctx.send(f'{member.mention} has been promoted.')
+        else:
+            await ctx.send(f'你无权这么做')
