@@ -27,17 +27,17 @@ Replace the ModuleName with any name you'd like
 '''
 class RoleManager(interactions.Extension):
     module_base: interactions.SlashCommand = interactions.SlashCommand(
-        name="censor_role",
-        description="Replace here for the base command descriptions"
+        name="censor",
+        description="审核"
     )
-    module_group: interactions.SlashCommand = module_base.group(
+    '''module_base: interactions.SlashCommand = module_base.group(
         name="can",
         description="Replace here for the group command descriptions"
-    )
+    )'''
 
     
     
-    @module_group.subcommand("promote", sub_cmd_description="通过审核")
+    @module_base.subcommand("promote", sub_cmd_description="通过审核")
     @interactions.slash_option(
         name = "member",
         description='member you want to promote',
@@ -45,7 +45,7 @@ class RoleManager(interactions.Extension):
         opt_type = interactions.OptionType.USER
     )
     async def promote(self,ctx:interactions.SlashContext,member:interactions.Member):
-        censor, allowed_roles, log_channel_id,guild_id = load_info.extract_bot_setup(f'{os.path.dirname(__file__)}/bot_setup.json')
+        censor = load_info.extract_bot_setup(f'{os.path.dirname(__file__)}/censor_setup.json')
         if any(role.name in censor for role in ctx.author.roles):
             official_member_role = interactions.utils.get(ctx.guild.roles, name='正式成员')
 
@@ -64,7 +64,7 @@ class RoleManager(interactions.Extension):
             await ctx.send(f'{member.mention} has been promoted.')
         else:
             await ctx.send(f'你无权这么做')
-    @module_group.subcommand("demote", sub_cmd_description="撤销通过审核")
+    @module_base.subcommand("demote", sub_cmd_description="撤销通过审核")
     @interactions.slash_option(
         name = "member",
         description='member you want to demote',
@@ -72,7 +72,7 @@ class RoleManager(interactions.Extension):
         opt_type = interactions.OptionType.USER
     )
     async def demote(self,ctx:interactions.SlashContext,member:interactions.Member):
-        censor, allowed_roles, log_channel_id,guild_id = load_info.extract_bot_setup(f'{os.path.dirname(__file__)}/bot_setup.json')
+        censor= load_info.extract_bot_setup(f'{os.path.dirname(__file__)}/censor_setup.json')
         if any(role.name in censor for role in ctx.author.roles):
             official_member_role = interactions.utils.get(ctx.guild.roles, name='正式成员')
 
