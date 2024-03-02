@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 '''
 import interactions
+import os
 # Use the following method to import the internal module in the current same directory
 from . import load_info
 
@@ -44,7 +45,7 @@ class RoleManager(interactions.Extension):
         opt_type = interactions.OptionType.USER
     )
     async def promote(self,ctx:interactions.SlashContext,member:interactions.Member):
-        censor, allowed_roles, log_channel_id,guild_id = load_info.extract_bot_setup("bot_setup.json")
+        censor, allowed_roles, log_channel_id,guild_id = load_info.extract_bot_setup(f'{os.path.dirname(__file__)}/bot_setup.json')
         if any(role.name in censor for role in ctx.author.roles):
             official_member_role = interactions.utils.get(ctx.guild.roles, name='正式成员')
 
@@ -71,7 +72,7 @@ class RoleManager(interactions.Extension):
         opt_type = interactions.OptionType.USER
     )
     async def demote(self,ctx:interactions.SlashContext,member:interactions.Member):
-        censor, allowed_roles, log_channel_id,guild_id = load_info.extract_bot_setup("bot_setup.json")
+        censor, allowed_roles, log_channel_id,guild_id = load_info.extract_bot_setup(f'{os.path.dirname(__file__)}/bot_setup.json')
         if any(role.name in censor for role in ctx.author.roles):
             official_member_role = interactions.utils.get(ctx.guild.roles, name='正式成员')
 
